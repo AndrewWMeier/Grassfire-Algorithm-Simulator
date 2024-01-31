@@ -166,7 +166,6 @@ class GridApp:
         #get grid size and obstacle positions
         size = int(self.grid_size.get())
         obstacle_positions = {(row, col) for row, col in self.obstacle_positions}
-        print("obstacle postions format row, col: " + str(obstacle_positions))
 
         #get start and end positions into tuples
         start_position = (0, int(self.start_cell_col.get()))
@@ -186,6 +185,10 @@ class GridApp:
         while queue:
             current_row, current_col = queue.pop(0)
 
+            #check if the destination cell is reached
+            if (current_row, current_col) == end_position:
+                break
+
             #check the neighbors of the current position
             for neighbor in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                 neighbor_row = current_row + neighbor[0]
@@ -200,18 +203,24 @@ class GridApp:
                         #add the neighbor to the queue for further exploration
                         queue.append((neighbor_row, neighbor_col))
 
-        # Find the path and print it
+        #check if the destination cell is reached
+        if (current_row, current_col) != end_position:
+            self.show_error("No path found. Reset the grid to try again.")
+            return
+
+        #find the path 
         path = self.find_path(grid, end_position)
-        print("Path:", path)
 
         #label empty cells with a delay
         self.label_cells_with_delay(grid, obstacle_positions, size, int(self.speed.get()))
 
         #draw path after cells are labeled
         self.master.after(len(path) * int(self.speed.get()), self.draw_path, path, start_position, end_position)
-        
+
         #after cells are labeled and path is drawn, give done msg
-        self.master.after(len(path) * int(self.speed.get()) + 1000, self.show_error, "Grassfire Done! Reset the grid to run again.")
+        self.master.after(len(path) * int(self.speed.get()) + 1000, self.show_error,
+                        "Grassfire Done! Reset the grid to run again.")
+
 
 if __name__ == "__main__":
     root = tk.Tk()

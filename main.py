@@ -11,6 +11,7 @@ class GridApp:
         self.start_cell_col = tk.StringVar(value="0")
         self.end_cell_row = tk.StringVar(value="9")
         self.end_cell_col = tk.StringVar(value="9")
+        self.speed = tk.StringVar(value="100")
         self.obstacle_positions = []
 
         tk.Label(master, text="Grid Size:").grid(row=0, column=0, padx=5, pady=5, sticky="e")
@@ -31,11 +32,14 @@ class GridApp:
         tk.Label(master, text="End Cell Col:").grid(row=5, column=0, padx=5, pady=5, sticky="e")
         tk.Entry(master, textvariable=self.end_cell_col).grid(row=5, column=1, padx=5, pady=5, sticky="w")
 
-        tk.Button(master, text="Update/Reset Grid", command=self.update_grid).grid(row=6, column=0, columnspan=2, pady=0)
-        tk.Button(master, text="Run Grassfire", command=self.grassfire).grid(row=6, column=3, columnspan=2, pady=0)
+        tk.Label(master, text="Speed:").grid(row=6, column=0, padx=5, pady=5, sticky="e")
+        tk.Entry(master, textvariable=self.speed).grid(row=6, column=1, padx=5, pady=5, sticky="w")
+
+        tk.Button(master, text="Update/Reset Grid", command=self.update_grid).grid(row=7, column=0, columnspan=2, pady=0)
+        tk.Button(master, text="Run Grassfire", command=self.grassfire).grid(row=7, column=3, columnspan=2, pady=0)
 
         self.error_label = tk.Label(master, text="", fg="red")
-        self.error_label.grid(row=7, column=0, columnspan=2)
+        self.error_label.grid(row=8, column=0, columnspan=2)
 
         self.canvas = tk.Canvas(master, width=1000, height=1000)
         self.canvas.grid(row=0, column=2, rowspan=12, padx=10, pady=10)
@@ -122,15 +126,38 @@ class GridApp:
         self.canvas.create_text(x, y, text=text)
 
     #function to write numbers in the cells with a delay
-    def label_cells_with_delay(self, grid, obstacle_positions, size):
+    def label_cells_with_delay(self, grid, obstacle_positions, size, speed):
             for row in range(size):
                 for col in range(size):
                     cell_value = grid[row][col]
                     if (row, col) not in obstacle_positions:
                         #label cells with a delay
-                        self.master.after(cell_value * 100, self.label_cell, row, col, cell_value)
-                       
-
+                        self.master.after(cell_value * speed, self.label_cell, row, col, cell_value)
+    
+    #function to draw the path with a delay
+    def draw_path(self, path, start_position, end_position):
+        for step, (row, col) in enumerate(path):
+            #making sure not to color start and end cells
+            if (row, col) != start_position and (row, col) != end_position:
+                self.master.after(step * 100, self.update_cell_color, row, col, "blue")
+            
+          
+    
+    #used by grassfire to find the path        
+    def find_path(self, grid, end_position):
+        path = []
+        current_position = end_position
+        while grid[current_position[0]][current_position[1]] != 0:
+            path.append(current_position)
+            for neighbor in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                neighbor_row = current_position[0] + neighbor[0]
+                neighbor_col = current_position[1] + neighbor[1]
+                if 0 <= neighbor_row < len(grid) and 0 <= neighbor_col < len(grid[0]) and grid[neighbor_row][neighbor_col] == grid[current_position[0]][current_position[1]] - 1:
+                    current_position = (neighbor_row, neighbor_col)
+                    break
+        path.append(current_position)
+        return path[::-1]
+    
     def grassfire(self):
         self.show_error("Running Grassfire...")
 
@@ -171,26 +198,20 @@ class GridApp:
                         #add the neighbor to the queue for further exploration
                         queue.append((neighbor_row, neighbor_col))
 
-        #output the final grid with distances to console for debugging
-        for row in range(size):
-            for col in range(size):
-                cell_value = grid[row][col]
-                if (row, col) in obstacle_positions:
-                    print("X", end=" ")
-                elif (row, col) == start_position:
-                    print("S", end=" ")
-                elif (row, col) == end_position:
-                    print("E", end=" ")
-                else:
-                    print(cell_value, end=" ")
-            print()
+        # Find the path and print it
+        path = self.find_path(grid, end_position)
+        print("Path:", path)
 
         #label empty cells with a delay
-        self.label_cells_with_delay(grid, obstacle_positions, size)
+        self.label_cells_with_delay(grid, obstacle_positions, size, int(self.speed.get()))
 
+        #draw path after cells are labeled
+        self.master.after(len(path) * int(self.speed.get()), self.draw_path, path, start_position, end_position)
         
-        
-            
+        #after cells are labeled and path is drawn, give done msg 
+        self.master.after(len(path) * int(self.speed.get()) + 100, self.show_error, "Grassfire Done!")
+
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = GridApp(root)

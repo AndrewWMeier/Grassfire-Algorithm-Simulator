@@ -31,7 +31,7 @@ class GridApp:
         tk.Label(master, text="End Cell Col:").grid(row=5, column=0, padx=5, pady=5, sticky="e")
         tk.Entry(master, textvariable=self.end_cell_col).grid(row=5, column=1, padx=5, pady=5, sticky="w")
 
-        tk.Button(master, text="Update Grid", command=self.update_grid).grid(row=6, column=0, columnspan=2, pady=0)
+        tk.Button(master, text="Update/Reset Grid", command=self.update_grid).grid(row=6, column=0, columnspan=2, pady=0)
         tk.Button(master, text="Run Grassfire", command=self.grassfire).grid(row=6, column=3, columnspan=2, pady=0)
 
         self.error_label = tk.Label(master, text="", fg="red")
@@ -51,10 +51,10 @@ class GridApp:
         end_col = int(self.end_cell_col.get())
         #reset obstacle postitions
         self.obstacle_positions = []
-        # Clear the canvas
+        #clear the canvas
         self.canvas.delete("all")
 
-        # Validation Rules
+        #validation Rules
         if size < 8:
             self.show_error("Error: Grid size should be at least 8x8.")
             return
@@ -74,26 +74,26 @@ class GridApp:
         else:
             self.clear_error()
 
-        # Draw top and left borders
+        #draw top and left borders
         self.canvas.create_line(0, 0, size * cell_size, 0, fill="black", width=5)
         self.canvas.create_line(0, 0, 0, size * cell_size, fill="black", width=5)
 
         for i in range(0, size * cell_size, cell_size):
             for j in range(0, size * cell_size, cell_size):
-                # Draw cell borders
+                #draw cell borders
                 self.canvas.create_rectangle(i, j, i + cell_size, j + cell_size, outline="black")
 
-        # Generate obstacles
+        #generate obstacles and start and end cells
         for i in range(size):
             for j in range(size):
                 #every cell has a chance to be an obstacle if it is not the start or end cell
                 if random.random() < obstacle_percentage and (i != 0 or j != start_col) and (i != end_row or j != end_col):
                     self.update_cell_color(i, j, "black")
-                    self.obstacle_positions.append((i, j))
-
+                    self.obstacle_positions.append([i, j])
         self.update_cell_color(0, start_col, "green")
         self.update_cell_color(end_row, end_col, "red")
         
+    #function to update cell color
     def update_cell_color(self, row, col, color):
         cell_size = int(self.cell_size.get())
         x1 = col * cell_size
@@ -114,20 +114,83 @@ class GridApp:
     def clear_error(self):
         self.error_label.config(text="")
 
+    #writes number in the center of the cell
     def label_cell(self, row, col, text):
         cell_size = int(self.cell_size.get())
         x = col * cell_size + cell_size / 2
         y = row * cell_size + cell_size / 2
         self.canvas.create_text(x, y, text=text)
-    
-    def grassfire(self):
-        start_col = int(self.start_cell_col.get())
-        end_row = int(self.end_cell_row.get())
-        end_col = int(self.end_cell_col.get())
-        size = int(self.grid_size.get())
-        obstacle_positions = self.obstacle_positions
-        print(start_col, end_row, end_col, size, len(obstacle_positions))
 
+    #function to write numbers in the cells with a delay
+    def label_cells_with_delay(self, grid, obstacle_positions, size):
+            for row in range(size):
+                for col in range(size):
+                    cell_value = grid[row][col]
+                    if (row, col) not in obstacle_positions:
+                        #label cells with a delay
+                        self.master.after(cell_value * 100, self.label_cell, row, col, cell_value)
+                       
+
+    def grassfire(self):
+        self.show_error("Running Grassfire...")
+
+        #get grid size and obstacle positions
+        size = int(self.grid_size.get())
+        obstacle_positions = {(row, col) for row, col in self.obstacle_positions}
+        print("obstacle postions format row, col: " + str(obstacle_positions))
+
+        #get start and end positions into tuples
+        start_position = (0, int(self.start_cell_col.get()))
+        end_position = (int(self.end_cell_row.get()), int(self.end_cell_col.get()))
+
+        #initialize the 2D grid array with -1 as the value for all cells
+        grid = [[-1 for _ in range(size)] for _ in range(size)]
+
+        #initialize the start cell with 0
+        start_row, start_col = start_position
+        grid[start_row][start_col] = 0
+
+        #initialize the queue with the start cell
+        queue = [(start_row, start_col)]
+
+        #perform the grassfire algorithm
+        while queue:
+            current_row, current_col = queue.pop(0)
+
+            #check the neighbors of the current position
+            for neighbor in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                neighbor_row = current_row + neighbor[0]
+                neighbor_col = current_col + neighbor[1]
+
+                #check if the neighbor is within the grid boundaries
+                if 0 <= neighbor_row < size and 0 <= neighbor_col < size:
+                    #check if the neighbor is not an obstacle and has not been visited yet
+                    if grid[neighbor_row][neighbor_col] == -1 and (neighbor_row, neighbor_col) not in obstacle_positions:
+                        #update the neighbor's value in the grid
+                        grid[neighbor_row][neighbor_col] = grid[current_row][current_col] + 1
+                        #add the neighbor to the queue for further exploration
+                        queue.append((neighbor_row, neighbor_col))
+
+        #output the final grid with distances to console for debugging
+        for row in range(size):
+            for col in range(size):
+                cell_value = grid[row][col]
+                if (row, col) in obstacle_positions:
+                    print("X", end=" ")
+                elif (row, col) == start_position:
+                    print("S", end=" ")
+                elif (row, col) == end_position:
+                    print("E", end=" ")
+                else:
+                    print(cell_value, end=" ")
+            print()
+
+        #label empty cells with a delay
+        self.label_cells_with_delay(grid, obstacle_positions, size)
+
+        
+        
+            
 if __name__ == "__main__":
     root = tk.Tk()
     app = GridApp(root)

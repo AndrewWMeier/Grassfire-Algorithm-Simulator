@@ -134,12 +134,14 @@ class GridApp:
                         #label cells with a delay
                         self.master.after(cell_value * speed, self.label_cell, row, col, cell_value)
     
-    #function to draw the path with a delay
+    #function to draw the path with a delay 
     def draw_path(self, path, start_position, end_position):
         for step, (row, col) in enumerate(path):
             #making sure not to color start and end cells
+            #as each cell is colored redraw the value in the cell
             if (row, col) != start_position and (row, col) != end_position:
-                self.master.after(step * 100, self.update_cell_color, row, col, "blue")
+                self.master.after(step * 100, self.update_cell_color, row, col, "yellow")
+                self.master.after(step * 100, self.label_cell, row, col, step)
             
           
     
@@ -208,9 +210,8 @@ class GridApp:
         #draw path after cells are labeled
         self.master.after(len(path) * int(self.speed.get()), self.draw_path, path, start_position, end_position)
         
-        #after cells are labeled and path is drawn, give done msg 
-        self.master.after(len(path) * int(self.speed.get()) + 100, self.show_error, "Grassfire Done!")
-
+        #after cells are labeled and path is drawn, give done msg
+        self.master.after(len(path) * int(self.speed.get()) + 1000, self.show_error, "Grassfire Done! Reset the grid to run again.")
 
 if __name__ == "__main__":
     root = tk.Tk()

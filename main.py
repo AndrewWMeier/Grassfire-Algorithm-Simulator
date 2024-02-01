@@ -15,12 +15,13 @@ class GridApp:
         self.obstacle_positions = []
 
         #colors
-        menu_color = "#89b0f0"
+        menu_color = "#3c3c40"
         grid_color= "#ffffff"
-        label_bg_color = "#89b0f0" 
+        label_bg_color = "#3c3c40"
+        label_text_color = "#ffffff"
         entry_bg_color = "#ffffff"  
         button_text_color = "red"
-        button_background_color = "#89b0f0"
+        button_background_color = "#3c3c40"
         error_color = "red"
 
         #fonts
@@ -30,25 +31,25 @@ class GridApp:
         error_font = font.Font(family="Arial", size=12, weight="bold") 
 
         #labes and entries for menu
-        tk.Label(master, text="Grid Size:", bg=label_bg_color, font=label_font).grid(row=0, column=0, padx=5, pady=5, sticky="e")
+        tk.Label(master, text="Grid Size:", bg=label_bg_color, font=label_font,fg=label_text_color ).grid(row=0, column=0, padx=5, pady=5, sticky="e")
         tk.Entry(master, textvariable=self.grid_size, bg=entry_bg_color, font=entry_font).grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
-        tk.Label(master, text="Cell Size:", bg=label_bg_color, font=label_font).grid(row=1, column=0, padx=5, pady=5, sticky="e")
+        tk.Label(master, text="Cell Size:", bg=label_bg_color, font=label_font,fg=label_text_color).grid(row=1, column=0, padx=5, pady=5, sticky="e")
         tk.Entry(master, textvariable=self.cell_size, bg=entry_bg_color, font=entry_font).grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
-        tk.Label(master, text="Obstacle Percentage:", bg=label_bg_color, font=label_font).grid(row=2, column=0, padx=5, pady=5, sticky="e")
+        tk.Label(master, text="Obstacle Percentage:", bg=label_bg_color, font=label_font,fg=label_text_color).grid(row=2, column=0, padx=5, pady=5, sticky="e")
         tk.Entry(master, textvariable=self.obstacle_percentage, bg=entry_bg_color, font=entry_font).grid(row=2, column=1, padx=5, pady=5, sticky="w")
 
-        tk.Label(master, text="Start Cell Col:", bg=label_bg_color, font=label_font).grid(row=3, column=0, padx=5, pady=5, sticky="e")
+        tk.Label(master, text="Start Cell Col:", bg=label_bg_color, font=label_font,fg=label_text_color).grid(row=3, column=0, padx=5, pady=5, sticky="e")
         tk.Entry(master, textvariable=self.start_cell_col, bg=entry_bg_color, font=entry_font).grid(row=3, column=1, padx=5, pady=5, sticky="w")
 
-        tk.Label(master, text="End Cell Row:", bg=label_bg_color, font=label_font).grid(row=4, column=0, padx=5, pady=5, sticky="e")
+        tk.Label(master, text="End Cell Row:", bg=label_bg_color, font=label_font,fg=label_text_color).grid(row=4, column=0, padx=5, pady=5, sticky="e")
         tk.Entry(master, textvariable=self.end_cell_row, bg=entry_bg_color, font=entry_font).grid(row=4, column=1, padx=5, pady=5, sticky="w")
 
-        tk.Label(master, text="End Cell Col:", bg=label_bg_color, font=label_font).grid(row=5, column=0, padx=5, pady=5, sticky="e")
+        tk.Label(master, text="End Cell Col:", bg=label_bg_color, font=label_font,fg=label_text_color).grid(row=5, column=0, padx=5, pady=5, sticky="e")
         tk.Entry(master, textvariable=self.end_cell_col, bg=entry_bg_color, font=entry_font).grid(row=5, column=1, padx=5, pady=5, sticky="w")
 
-        tk.Label(master, text="Speed (1 is instant):", bg=label_bg_color, font=label_font).grid(row=6, column=0, padx=5, pady=5, sticky="e")
+        tk.Label(master, text="Speed (1 is instant):", bg=label_bg_color, font=label_font,fg=label_text_color).grid(row=6, column=0, padx=5, pady=5, sticky="e")
         tk.Entry(master, textvariable=self.speed, bg=entry_bg_color, font=entry_font).grid(row=6, column=1, padx=5, pady=5, sticky="w")
 
         tk.Button(master, text="Update/Reset Grid", command=self.update_grid, font=button_font, fg=button_text_color, bg=button_background_color).grid(row=7, column=0, columnspan=1, pady=0)

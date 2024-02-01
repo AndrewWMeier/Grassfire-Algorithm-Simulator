@@ -7,7 +7,7 @@ class GridApp:
         self.master = master
         self.grid_size = tk.StringVar(value="10")
         self.cell_size = tk.StringVar(value="70")
-        self.obstacle_percentage = tk.StringVar(value="0.15")
+        self.obstacle_percentage = tk.StringVar(value="15")
         self.start_cell_col = tk.StringVar(value="0")
         self.end_cell_row = tk.StringVar(value="9")
         self.end_cell_col = tk.StringVar(value="9")
@@ -63,8 +63,8 @@ class GridApp:
             self.show_error("Error: Grid size should be at least 8x8.")
             return
 
-        if not (0.1 <= obstacle_percentage <= 0.2):
-            self.show_error("Error: Obstacle percentage should be in the range of 0.1 to 0.2.")
+        if not (1 <= obstacle_percentage <= 40):
+            self.show_error("Error: Obstacle percentage should be in the range of 1 to 40 percent.")
             return
 
         if not (0 <= start_col < size):
@@ -91,7 +91,7 @@ class GridApp:
         for i in range(size):
             for j in range(size):
                 #every cell has a chance to be an obstacle if it is not the start or end cell
-                if random.random() < obstacle_percentage and (i != 0 or j != start_col) and (i != end_row or j != end_col):
+                if random.random() < (obstacle_percentage/100) and (i != 0 or j != start_col) and (i != end_row or j != end_col):
                     self.update_cell_color(i, j, "black")
                     self.obstacle_positions.append([i, j])
         self.update_cell_color(0, start_col, "green")
@@ -135,13 +135,13 @@ class GridApp:
                         self.master.after(cell_value * speed, self.label_cell, row, col, cell_value)
     
     #function to draw the path with a delay 
-    def draw_path(self, path, start_position, end_position):
+    def draw_path(self, path, start_position, end_position,speed):
         for step, (row, col) in enumerate(path):
             #making sure not to color start and end cells
             #as each cell is colored redraw the value in the cell
             if (row, col) != start_position and (row, col) != end_position:
-                self.master.after(step * 100, self.update_cell_color, row, col, "yellow")
-                self.master.after(step * 100, self.label_cell, row, col, step)
+                self.master.after(step * speed, self.update_cell_color, row, col, "yellow")
+                self.master.after(step * speed, self.label_cell, row, col, step)
             
           
     
@@ -211,14 +211,17 @@ class GridApp:
         #find the path 
         path = self.find_path(grid, end_position)
 
+        #speed
+        speed = int(self.speed.get())
+
         #label empty cells with a delay
-        self.label_cells_with_delay(grid, obstacle_positions, size, int(self.speed.get()))
+        self.label_cells_with_delay(grid, obstacle_positions, size, speed)
 
         #draw path after cells are labeled
-        self.master.after(len(path) * int(self.speed.get()), self.draw_path, path, start_position, end_position)
+        self.master.after(len(path) * speed, self.draw_path, path, start_position, end_position, speed)
 
         #after cells are labeled and path is drawn, give done msg
-        self.master.after(len(path) * int(self.speed.get()) + 1000, self.show_error,
+        self.master.after((len(path) * speed)+ 1000, self.show_error,
                         "Grassfire Done! Reset the grid to run again.")
 
 

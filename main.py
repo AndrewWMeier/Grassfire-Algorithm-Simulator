@@ -1,6 +1,6 @@
 import tkinter as tk
+from tkinter import font
 import random
-import math
 
 class GridApp:
     def __init__(self, master):
@@ -14,36 +14,54 @@ class GridApp:
         self.speed = tk.StringVar(value="100")
         self.obstacle_positions = []
 
-        tk.Label(master, text="Grid Size:").grid(row=0, column=0, padx=5, pady=5, sticky="e")
-        tk.Entry(master, textvariable=self.grid_size).grid(row=0, column=1, padx=5, pady=5, sticky="w")
+        #colors
+        menu_color = "#89b0f0"
+        grid_color= "#ffffff"
+        label_bg_color = "#89b0f0" 
+        entry_bg_color = "#ffffff"  
+        button_text_color = "red"
+        button_background_color = "#89b0f0"
+        error_color = "red"
 
-        tk.Label(master, text="Cell Size:").grid(row=1, column=0, padx=5, pady=5, sticky="e")
-        tk.Entry(master, textvariable=self.cell_size).grid(row=1, column=1, padx=5, pady=5, sticky="w")
+        #fonts
+        label_font = font.Font(family="Arial", size=12, weight="bold")  
+        entry_font = font.Font(family="Arial", size=12, weight="bold")  
+        button_font = font.Font(family="Arial", size=12, weight="bold") 
+        error_font = font.Font(family="Arial", size=12, weight="bold") 
 
-        tk.Label(master, text="Obstacle Percentage:").grid(row=2, column=0, padx=5, pady=5, sticky="e")
-        tk.Entry(master, textvariable=self.obstacle_percentage).grid(row=2, column=1, padx=5, pady=5, sticky="w")
+        #labes and entries for menu
+        tk.Label(master, text="Grid Size:", bg=label_bg_color, font=label_font).grid(row=0, column=0, padx=5, pady=5, sticky="e")
+        tk.Entry(master, textvariable=self.grid_size, bg=entry_bg_color, font=entry_font).grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
-        tk.Label(master, text="Start Cell Col:").grid(row=3, column=0, padx=5, pady=5, sticky="e")
-        tk.Entry(master, textvariable=self.start_cell_col).grid(row=3, column=1, padx=5, pady=5, sticky="w")
+        tk.Label(master, text="Cell Size:", bg=label_bg_color, font=label_font).grid(row=1, column=0, padx=5, pady=5, sticky="e")
+        tk.Entry(master, textvariable=self.cell_size, bg=entry_bg_color, font=entry_font).grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
-        tk.Label(master, text="End Cell Row:").grid(row=4, column=0, padx=5, pady=5, sticky="e")
-        tk.Entry(master, textvariable=self.end_cell_row).grid(row=4, column=1, padx=5, pady=5, sticky="w")
+        tk.Label(master, text="Obstacle Percentage:", bg=label_bg_color, font=label_font).grid(row=2, column=0, padx=5, pady=5, sticky="e")
+        tk.Entry(master, textvariable=self.obstacle_percentage, bg=entry_bg_color, font=entry_font).grid(row=2, column=1, padx=5, pady=5, sticky="w")
 
-        tk.Label(master, text="End Cell Col:").grid(row=5, column=0, padx=5, pady=5, sticky="e")
-        tk.Entry(master, textvariable=self.end_cell_col).grid(row=5, column=1, padx=5, pady=5, sticky="w")
+        tk.Label(master, text="Start Cell Col:", bg=label_bg_color, font=label_font).grid(row=3, column=0, padx=5, pady=5, sticky="e")
+        tk.Entry(master, textvariable=self.start_cell_col, bg=entry_bg_color, font=entry_font).grid(row=3, column=1, padx=5, pady=5, sticky="w")
 
-        tk.Label(master, text="Speed:").grid(row=6, column=0, padx=5, pady=5, sticky="e")
-        tk.Entry(master, textvariable=self.speed).grid(row=6, column=1, padx=5, pady=5, sticky="w")
+        tk.Label(master, text="End Cell Row:", bg=label_bg_color, font=label_font).grid(row=4, column=0, padx=5, pady=5, sticky="e")
+        tk.Entry(master, textvariable=self.end_cell_row, bg=entry_bg_color, font=entry_font).grid(row=4, column=1, padx=5, pady=5, sticky="w")
 
-        tk.Button(master, text="Update/Reset Grid", command=self.update_grid).grid(row=7, column=0, columnspan=1, pady=0)
-        tk.Button(master, text="Run Grassfire", command=self.grassfire).grid(row=7, column=1, columnspan=1, pady=0)
+        tk.Label(master, text="End Cell Col:", bg=label_bg_color, font=label_font).grid(row=5, column=0, padx=5, pady=5, sticky="e")
+        tk.Entry(master, textvariable=self.end_cell_col, bg=entry_bg_color, font=entry_font).grid(row=5, column=1, padx=5, pady=5, sticky="w")
 
-        self.error_label = tk.Label(master, text="", fg="red")
+        tk.Label(master, text="Speed (1 is instant):", bg=label_bg_color, font=label_font).grid(row=6, column=0, padx=5, pady=5, sticky="e")
+        tk.Entry(master, textvariable=self.speed, bg=entry_bg_color, font=entry_font).grid(row=6, column=1, padx=5, pady=5, sticky="w")
+
+        tk.Button(master, text="Update/Reset Grid", command=self.update_grid, font=button_font, fg=button_text_color, bg=button_background_color).grid(row=7, column=0, columnspan=1, pady=0)
+        tk.Button(master, text="Run Grassfire", command=self.grassfire, font=button_font, fg=button_text_color, bg=button_background_color).grid(row=7, column=1, columnspan=1, pady=0)
+
+        #error labels
+        self.error_label = tk.Label(master, text="", fg=error_color, bg=label_bg_color, font=error_font)
         self.error_label.grid(row=8, column=0, columnspan=2)
 
         #intiliazing canvas with values that fit the default input parameters
-        self.master.config(bg="#89b0f0")
-        self.canvas = tk.Canvas(master, width=1000, height=1000, bg="white")
+        self.master.config(bg=menu_color)
+        self.master.title("Grassfire Simlulator")
+        self.canvas = tk.Canvas(master, width=1000, height=1000, bg=grid_color)
         self.canvas.grid(row=0, column=2, rowspan=18)
         self.update_grid()
 

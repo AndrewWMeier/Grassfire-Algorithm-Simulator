@@ -35,14 +35,16 @@ class GridApp:
         tk.Label(master, text="Speed:").grid(row=6, column=0, padx=5, pady=5, sticky="e")
         tk.Entry(master, textvariable=self.speed).grid(row=6, column=1, padx=5, pady=5, sticky="w")
 
-        tk.Button(master, text="Update/Reset Grid", command=self.update_grid).grid(row=7, column=0, columnspan=2, pady=0)
-        tk.Button(master, text="Run Grassfire", command=self.grassfire).grid(row=7, column=3, columnspan=2, pady=0)
+        tk.Button(master, text="Update/Reset Grid", command=self.update_grid).grid(row=7, column=0, columnspan=1, pady=0)
+        tk.Button(master, text="Run Grassfire", command=self.grassfire).grid(row=7, column=1, columnspan=1, pady=0)
 
         self.error_label = tk.Label(master, text="", fg="red")
         self.error_label.grid(row=8, column=0, columnspan=2)
 
-        self.canvas = tk.Canvas(master, width=1000, height=1000)
-        self.canvas.grid(row=0, column=2, rowspan=12, padx=10, pady=10)
+        #intiliazing canvas with values that fit the default input parameters
+        self.master.config(bg="#89b0f0")
+        self.canvas = tk.Canvas(master, width=1000, height=1000, bg="white")
+        self.canvas.grid(row=0, column=2, rowspan=18)
         self.update_grid()
 
     #function used to create grid with initial values and update it when update grid button is pressed
@@ -53,8 +55,13 @@ class GridApp:
         start_col = int(self.start_cell_col.get())
         end_row = int(self.end_cell_row.get())
         end_col = int(self.end_cell_col.get())
+
         #reset obstacle postitions
         self.obstacle_positions = []
+
+        #dynamically set canvas size by multiplying cell size by grid size
+        self.canvas.config(width=size * cell_size, height=size * cell_size)
+
         #clear the canvas
         self.canvas.delete("all")
 
